@@ -17,8 +17,8 @@ public class BookService {
 
     @HystrixCommand(fallbackMethod = "reliable")
     public String readingList() {
-        log.info("Access /say-hello/recommended");
-        return this.restTemplate.getForObject("http://say-hello/say-hello/recommended", String.class);
+        log.info("Access /recommended");
+        return this.restTemplate.getForObject("http://say-hello/recommended", String.class);
     }
 
     public String reliable() {
