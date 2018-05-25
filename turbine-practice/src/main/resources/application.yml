@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: turbine-practice
+server:
+  port: 8089
+
+eureka:
+  client:
+    serviceUrl:
+#      defaultZone: http://192.168.60.199:1111/eureka/
+      defaultZone: http://localhost:8761/eureka/
+
+management:
+  port: 10001
+turbine:
+  app-config: user
+  cluster-name-expression: new String("default") # or use "'default'"
+  combine-host-port: true

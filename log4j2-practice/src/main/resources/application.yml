@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: log4j2-pratice
+  profiles:
+    active: dev
+#    active: beta
+server:
+  port: 9093

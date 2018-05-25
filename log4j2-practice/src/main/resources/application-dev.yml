@@ -1,0 +1,10 @@
+spring:
+  output:
+    ansi:
+      enabled: always
+
+logging:
+  config: classpath:log4j2-spring-dev.xml
+#  level:
+##    root: info
+#    com.practice.springboot.log4j2: info

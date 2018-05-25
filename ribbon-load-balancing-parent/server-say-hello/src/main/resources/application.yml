@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: say-hello
+
+server:
+  port: 8093
+
+eureka:
+  client:
+    serviceUrl:
+#      defaultZone: http://192.168.60.199:1111/eureka/
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 15

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="300"><!-- monitorInterval, 每300秒刷新配置 -->
+    <properties>
+        <property name="LOG_HOME">logs</property>
+        <property name="FILE_NAME">myLog-beta</property>
+    </properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+        <RollingRandomAccessFile name="MyFile"
+                                 fileName="${LOG_HOME}/${FILE_NAME}.log"
+                                 filePattern="${LOG_HOME}/$${date:yyyy-MM}/${FILE_NAME}-%d{yyyy-MM-dd-HH-mm}-%i.log"><!-- filePattern 为作古日志文件的格式，并确定最小单位时间为mm即为秒-->
+            <PatternLayout
+                    pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <Policies><!-- 有一个策略满足则新建日志文件 -->
+                <TimeBasedTriggeringPolicy interval="1"/> <!-- 每1个最小单位时间新建日志文件 -->
+                <SizeBasedTriggeringPolicy size="1 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/><!-- DefaultRolloverStrategy  指定最多保存的文件个数-->
+        </RollingRandomAccessFile>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="myLog" level="trace" additivity="false">
+            <AppenderRef ref="MyFile"/>
+        </Logger>
+
+        <Logger name="com.practice.springboot.log4j2.official.Bar" level="TRACE" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Root level="error">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: hello-feign-client
+
+eureka:
+  client:
+    service-url:
+      default-zone: http://localhost:8761/eureka
+
+server:
+  port: 9091
