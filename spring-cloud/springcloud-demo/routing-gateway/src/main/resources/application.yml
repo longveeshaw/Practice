@@ -1,0 +1,26 @@
+server:
+  port: 8081
+
+zuul:
+  routes:
+    books:
+      path: /book/**
+      serviceId: book
+
+spring:
+  application:
+    name: gateway
+eureka:
+  client:
+    service-url:
+      default-zone: http://localhost:8761/eureka/
+#
+#book:
+#  ribbon:
+#    ServerListRefreshInterval: 15000
+
+
+
+#ribbon:
+#  eureka:
+#    enabled: false

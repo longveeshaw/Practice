@@ -1,0 +1,1 @@
+"D:\Program Files\Java\jdk1.8.0_151\bin\jstack.exe" -F %1 > printstack.txt

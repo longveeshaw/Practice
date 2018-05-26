@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: user
+
+server:
+  port: 8888
+
+# 与eureka结合，eureka指服务注册中心；要先启动bundle： registry-server
+say-hello:
+  ribbon:
+    eureka:
+      enabled: true
+#    listOfServers: localhost:8090,localhost:9092,localhost:9999
+    ServerListRefreshInterval: 15000

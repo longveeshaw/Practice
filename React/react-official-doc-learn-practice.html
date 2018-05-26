@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>Hello World</title>
+    <script src="./react.development.js"></script>
+    <script src="./react-dom.development.js"></script>
+    <script src="./babel.min.js"></script>
+    <script src="../../temp/temperature.js"></script>
+    <style type="text/css">
+        .FancyBorder {
+            padding: 10px 10px;
+            border: 10px solid;
+            border-color: blue;
+
+        }
+
+        .DialogTitle {
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        .DialogMessage {
+            font-size: larger;
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+
+
+<script type="text/babel">
+    //We recommend that such components use the special children prop to pass children elements directly into their output:
+    function WelcomeDialog(props) {
+
+        return (
+            <FancyBorder>
+                <p className="DialogTitle">
+                    Welcome
+                </p>
+                <p className="DialogMessage">
+                    Thank you for visiting our spacecraft!
+                </p>
+            </FancyBorder>
+        )
+    }
+
+    function FancyBorder(props) {
+        return (
+            <div className="FancyBorder">
+                {props.children}
+            </div>
+        )
+    }
+
+    ReactDOM.render(
+        <WelcomeDialog/>,
+        document.getElementById('root')
+    )
+
+
+    function App(props) {
+        return (
+            <div right={<Righth/>} left={Left}/>
+        )
+    }
+
+</script>
+
+<!--
+  Note: this page is a great way to try React but it's not suitable for production.
+  It slowly compiles JSX with Babel in the browser and uses a large development build of React.
+
+  To set up a production-ready React build environment, follow these instructions:
+  * https://reactjs.org/docs/add-react-to-a-new-app.html
+  * https://reactjs.org/docs/add-react-to-an-existing-app.html
+
+  You can also use React without JSX, in which case you can remove Babel:
+  * https://reactjs.org/docs/react-without-jsx.html
+  * https://reactjs.org/docs/cdn-links.html
+-->
+</body>
+</html>
