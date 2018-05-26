@@ -49,13 +49,16 @@ hs_err_pid*
 
 # dependencies
 /node_modules
+*/node_modules
 
 # testing
 /coverage
 
 # production
 /build
+*/build
 /dist
+*/dist
 
 # misc
 .DS_Store
