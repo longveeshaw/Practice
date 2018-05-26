@@ -54,7 +54,7 @@ hs_err_pid*
 # testing
 /coverage
 /**/coverage
- 
+  
 # production
 /build
 /**/build
