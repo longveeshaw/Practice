@@ -1,4 +1,4 @@
-package com.practice.springcloud.gateway.redis;
+package com.practice.springwebflux.redis;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
