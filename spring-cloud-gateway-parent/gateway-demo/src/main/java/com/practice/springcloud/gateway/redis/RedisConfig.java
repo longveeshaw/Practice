@@ -15,7 +15,7 @@ import java.nio.charset.Charset;
 public class RedisConfig {
 
     @Bean
-    public ReactiveRedisOperations<String, String> redisTemplate(ReactiveRedisConnectionFactory factory) {
+    public ReactiveRedisOperations<String, String> redisOperations(ReactiveRedisConnectionFactory factory) {
         RedisSerializer<String> serializer = new StringRedisSerializer(Charset.forName("utf-8"));
         RedisSerializationContext.RedisSerializationContextBuilder<String, String> builder = RedisSerializationContext.newSerializationContext(new StringRedisSerializer());
         RedisSerializationContext<String, String> context = builder.value(serializer).build();
