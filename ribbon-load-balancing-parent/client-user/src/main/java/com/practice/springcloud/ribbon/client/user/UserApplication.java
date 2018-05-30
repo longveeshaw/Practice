@@ -1,5 +1,6 @@
 package com.practice.springcloud.ribbon.client.user;
 
+import com.practice.springcloud.ribbon.client.user.auth.config.AuthConfig;
 import com.practice.springcloud.ribbon.client.user.service.hystrix.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -36,6 +37,9 @@ public class UserApplication {
     @Autowired
     private BookService bookService;
 
+    @Autowired
+    private AuthConfig authConfig;
+
     @RequestMapping("/hi")
     public String hi(@RequestParam(value = "name", defaultValue = "Artaban") String name) {
         String greeting = this.restTemplate.getForObject("http://say-hello/greeting", String.class);
@@ -47,6 +51,10 @@ public class UserApplication {
         return bookService.readingList();
     }
 
+    @RequestMapping("auth")
+    public Object getAuth(){
+        return  authConfig.getServers();
+    }
     public static void main(String[] args) {
         SpringApplication.run(UserApplication.class, args);
     }

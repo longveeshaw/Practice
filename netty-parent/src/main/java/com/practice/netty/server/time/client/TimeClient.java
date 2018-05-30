@@ -1,4 +1,4 @@
-package com.practice.netty.server.time;
+package com.practice.netty.server.time.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;

@@ -6,3 +6,7 @@ spring:
       uri: http://localhost:8083
 server:
   port: 8888
+
+spring:
+  config:
+    additional-location: classpath:/config/auth_config.yml

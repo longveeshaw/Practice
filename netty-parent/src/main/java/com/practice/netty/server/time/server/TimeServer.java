@@ -1,6 +1,5 @@
-package com.practice.netty.server.time;
+package com.practice.netty.server.time.server;
 
-import com.practice.netty.server.echo.EchoServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;

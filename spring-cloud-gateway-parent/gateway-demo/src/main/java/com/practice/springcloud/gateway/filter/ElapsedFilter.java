@@ -10,7 +10,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
- * 貌似只能fluent配置中使用
+ * 要放到FilterFactory中才能配置到 yml 中
  *
  * @author Luo Bao Ding
  * @since 2018/5/14

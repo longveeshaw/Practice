@@ -1,6 +1,5 @@
 package com.practice.netty.server.pojo;
 
-import com.practice.netty.server.time.TimeServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
