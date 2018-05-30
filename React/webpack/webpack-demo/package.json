@@ -1,0 +1,22 @@
+{
+  "name": "test-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "NODE_ENV=dev webpack-dev-server --progress --colors",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build":"rm -rf ./build && NODE_ENV=production webpack --config ./webpack.production.config.js  --progress --colors"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.11.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
+  }
+}

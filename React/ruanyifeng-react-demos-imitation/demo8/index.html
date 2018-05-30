@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="../build/react.js"></script>
+    <script src="../build/react-dom.js"></script>
+    <script src="../build/browser.min.js"></script>
+</head>
+<body>
+<div id="example"></div>
+<script type="text/babel">
+    // ** Our code goes here! **
+    var LikeButton=React.createClass({
+        getInitialState:function () {
+           return {
+               like:false
+           }
+        },
+        handleClick:function (event) {
+            this.setState({
+                like:!this.state.like
+            })
+        },
+        render:function () {
+            let text=this.state.like?'like':'don\'t like';
+            return (
+                <p onClick={this.handleClick}>
+                    he {text} this book, so he will buy it;
+                    click to toggle
+                </p>
+            )
+        }
+    });
+    ReactDOM.render(
+        <LikeButton/>,
+        document.getElementById('example')
+    )
+</script>
+</body>
+</html>

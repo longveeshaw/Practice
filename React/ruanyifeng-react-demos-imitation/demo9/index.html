@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="../build/react.js"></script>
+    <script src="../build/react-dom.js"></script>
+    <script src="../build/browser.min.js"></script>
+</head>
+<body>
+<div id="example"></div>
+<script type="text/babel">
+    // ** Our code goes here! **
+    let Input = React.createClass({
+        getInitialState: function () {
+            return {
+                content: 'hello!'
+            }
+        },
+        handleChange: function (event) {
+            this.setState({
+                content: event.target.value
+            })
+        },
+        render: function () {
+            let content = this.state.content;
+            return (
+                <div>
+                    <input type="text" value={content} onChange={this.handleChange}/>
+                    <p>{content}</p>
+                </div>
+            );
+        }
+    });
+
+    ReactDOM.render(
+        <Input/>,
+        document.getElementById('example')
+    )
+</script>
+</body>
+</html>

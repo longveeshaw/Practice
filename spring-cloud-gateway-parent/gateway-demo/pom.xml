@@ -29,6 +29,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
+
 <!--   会默认引来登录校验
         <dependency>
             <groupId>org.springframework.boot</groupId>

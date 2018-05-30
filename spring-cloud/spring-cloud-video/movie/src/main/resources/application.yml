@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: movie
+eureka:
+  client:
+    service-url:
+      defaultZone: http://admin:admin@localhost:8761/eureka
+server:
+  port: 7901
+

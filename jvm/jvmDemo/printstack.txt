@@ -1,0 +1,47 @@
+Attaching to process ID 263296, please wait...
+Debugger attached successfully.
+Server compiler detected.
+JVM version is 25.151-b12
+Deadlock Detection:
+
+No deadlocks found.
+
+Thread 19: (state = IN_NATIVE)
+ - java.net.SocketInputStream.socketRead0(java.io.FileDescriptor, byte[], int, int, int) @bci=0 (Interpreted frame)
+ - java.net.SocketInputStream.socketRead(java.io.FileDescriptor, byte[], int, int, int) @bci=8, line=116 (Interpreted frame)
+ - java.net.SocketInputStream.read(byte[], int, int, int) @bci=117, line=171 (Interpreted frame)
+ - java.net.SocketInputStream.read(byte[], int, int) @bci=11, line=141 (Interpreted frame)
+ - sun.nio.cs.StreamDecoder.readBytes() @bci=135, line=284 (Interpreted frame)
+ - sun.nio.cs.StreamDecoder.implRead(char[], int, int) @bci=112, line=326 (Interpreted frame)
+ - sun.nio.cs.StreamDecoder.read(char[], int, int) @bci=180, line=178 (Interpreted frame)
+ - java.io.InputStreamReader.read(char[], int, int) @bci=7, line=184 (Interpreted frame)
+ - java.io.BufferedReader.fill() @bci=145, line=161 (Interpreted frame)
+ - java.io.BufferedReader.readLine(boolean) @bci=44, line=324 (Interpreted frame)
+ - java.io.BufferedReader.readLine() @bci=2, line=389 (Interpreted frame)
+ - com.intellij.rt.execution.application.AppMainV2$1.run() @bci=36, line=64 (Interpreted frame)
+
+
+Thread 18: (state = BLOCKED)
+
+
+Thread 17: (state = BLOCKED)
+
+
+Thread 15: (state = BLOCKED)
+ - java.lang.Object.wait(long) @bci=0 (Interpreted frame)
+ - java.lang.ref.ReferenceQueue.remove(long) @bci=59, line=143 (Interpreted frame)
+ - java.lang.ref.ReferenceQueue.remove() @bci=2, line=164 (Interpreted frame)
+ - java.lang.ref.Finalizer$FinalizerThread.run() @bci=36, line=209 (Interpreted frame)
+
+
+Thread 14: (state = BLOCKED)
+ - java.lang.Object.wait(long) @bci=0 (Interpreted frame)
+ - java.lang.Object.wait() @bci=2, line=502 (Interpreted frame)
+ - java.lang.ref.Reference.tryHandlePending(boolean) @bci=54, line=191 (Interpreted frame)
+ - java.lang.ref.Reference$ReferenceHandler.run() @bci=1, line=153 (Interpreted frame)
+
+
+Thread 4: (state = BLOCKED)
+ - PermOOM.main(java.lang.String[]) @bci=87, line=29 (Interpreted frame)
+
+
