@@ -6,25 +6,12 @@
 
     <groupId>com.practice.netty</groupId>
     <artifactId>netty-parent</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>netty-official-demo</module>
+        <module>netty-folk-demo</module>
+    </modules>
 
-    <dependencies>
-        <!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>4.1.25.Final</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.16.20</version>
-            <scope>provided</scope>
-        </dependency>
-
-
-
-    </dependencies>
 
 </project>

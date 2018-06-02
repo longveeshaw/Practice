@@ -44,14 +44,14 @@ eureka:
 
 server:
   port: 8088
-  tomcat:
-    basedir: logs/accesslog
-    accesslog:
-      enabled: true
-      prefix: localhost_access_log.
-      suffix: .log
-      pattern: "%h %l %u %t %r %s %b %D"
-      file-date-format: "yyyy-MM-dd.HH"
+#  tomcat:
+#    basedir: logs/accesslog
+#    accesslog:
+#      enabled: true
+#      prefix: localhost_access_log.
+#      suffix: .log
+#      pattern: "%h %l %u %t %r %s %b %D"
+#      file-date-format: "yyyy-MM-dd.HH"
 
 hystrix:
   command:
