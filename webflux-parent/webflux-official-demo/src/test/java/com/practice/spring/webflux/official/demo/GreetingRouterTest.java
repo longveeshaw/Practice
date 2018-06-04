@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
  * @since 2018/5/25
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,classes = WebfluxOfficialDemoApplication.class)
 public class GreetingRouterTest {
 
     @Autowired
