@@ -4,3 +4,4 @@ test3
 edit here after git reset --soft HAED^
 test4
 test5
+test7
