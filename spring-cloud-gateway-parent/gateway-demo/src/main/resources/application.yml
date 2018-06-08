@@ -4,18 +4,25 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: say_hello_route
-          uri: lb://say-hello
+        - id: read_body_route
+          uri: http://localhost
           predicates:
-            - Path=/hello/**
+            - Path=/rb/**
           filters:
+            - ReadBody
             - StripPrefix=1
-            - ElapsedPrint=true
-            - Elapsed
-            - name: Hystrix
-              args:
-                name: slowcmd
-                fallbackUri: forward:/hystrixfallback
+#        - id: say_hello_route
+#          uri: lb://say-hello
+#          predicates:
+#            - Path=/hello/**
+#          filters:
+#            - StripPrefix=1
+#            - ElapsedPrint=true
+#            - Elapsed
+#            - name: Hystrix
+#              args:
+#                name: slowcmd
+#                fallbackUri: forward:/hystrixfallback
 #            - name: RequestRateLimiter
 #              args:
 #                key-resolver: "#{@remoteAddressKeyResolver}"
@@ -43,7 +50,7 @@ eureka:
       enabled: true
 
 server:
-  port: 8088
+  port: 8080
 #  tomcat:
 #    basedir: logs/accesslog
 #    accesslog:

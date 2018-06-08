@@ -1,5 +1,6 @@
 package com.practice.spring.webflux.official.demo;
 
+import com.practice.spring.webflux.official.demo.client.GreetingWebClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -11,8 +12,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class WebfluxOfficialDemoApplication {
 
     public static void main(String[] args) {
+        //boot server
         SpringApplication.run(WebfluxOfficialDemoApplication.class, args);
 
+        //boot client
         System.out.println(new GreetingWebClient().getResult());
 
     }

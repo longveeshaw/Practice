@@ -3,22 +3,21 @@ package com.practice.springcloud.gateway.filter_factory;
 import com.practice.springcloud.gateway.filter.ElapsedFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
-import org.springframework.cloud.gateway.filter.factory.GatewayFilterFactory;
+import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.tuple.Tuple;
 
 /**
  * @author Luo Bao Ding
  * @since 2018/5/14
  */
 @Component
-public class ElapsedGatewayFilterFactory implements GatewayFilterFactory/*,Ordered*/ {
+public class ElapsedGatewayFilterFactory extends AbstractGatewayFilterFactory/*,Ordered*/ {
 
     @Autowired
     public ElapsedFilter elapsedFilter;
 
     @Override
-    public GatewayFilter apply(Tuple args) {
+    public GatewayFilter apply(Object object) {
         return elapsedFilter;
     }
 /*
