@@ -11,6 +11,6 @@ import reactor.core.publisher.Mono;
 public class MyHandler {
 
     public <T extends ServerResponse> Mono<T> persistNotification(ServerRequest request) {
-        return Mono.empty();
+        return Mono.empty();//note: arbitrary addon
     }
 }
