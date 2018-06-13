@@ -11,6 +11,9 @@
     <modules>
         <module>webflux-demo</module>
         <module>webflux-official-demo</module>
+        <module>webflux-copy-body-demo</module>
+        <module>webflux-post-demo</module>
+        <module>webflux-redis-demo</module>
     </modules>
 
 

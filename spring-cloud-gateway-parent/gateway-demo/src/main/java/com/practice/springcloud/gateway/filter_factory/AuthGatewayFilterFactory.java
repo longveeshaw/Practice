@@ -1,10 +1,9 @@
 package com.practice.springcloud.gateway.filter_factory;
 
 import org.springframework.cloud.gateway.filter.GatewayFilter;
-import org.springframework.cloud.gateway.filter.factory.GatewayFilterFactory;
+import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
-import org.springframework.tuple.Tuple;
 
 import java.net.URI;
 
@@ -13,18 +12,11 @@ import java.net.URI;
  * @since 2018/5/29
  */
 @Component
-public class AuthGatewayFilterFactory implements GatewayFilterFactory {
+public class AuthGatewayFilterFactory extends AbstractGatewayFilterFactory {
 
     @Override
-    public GatewayFilter apply(Tuple args) {
+    public GatewayFilter apply(Object config) {
 
-        return (exchange, chain) -> {
-// ignore
-            return chain.filter(exchange);
-        };
-    }
-
-    public GatewayFilter apply2(Tuple args) {
         return (exchange, chain) ->
                 exchange.getFormData()
                         .flatMap(formData -> {
@@ -45,4 +37,5 @@ public class AuthGatewayFilterFactory implements GatewayFilterFactory {
                             );
                         });
     }
+
 }

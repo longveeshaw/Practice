@@ -1,5 +1,6 @@
 package com.practice.spring.webflux.official.demo;
 
+import com.practice.spring.webflux.official.demo.client.GreetingWebClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
