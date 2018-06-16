@@ -21,9 +21,16 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.method.support.HandlerMethodArgumentResolverComposite;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.HandlerExecutionChain;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.ServletRequestDataBinderFactory;
 import org.springframework.web.servlet.support.RequestContextUtils;
+import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,6 +39,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
+ * multipart successful read auth param
+ *
  * @author Luo Bao Ding
  * @since 2018/6/15
  */
@@ -54,6 +63,10 @@ public class SimpleFilter extends ZuulFilter implements InitializingBean {
      */
     public static final String METHOD_AUTH_PARAM = "authParam";
 
+//============= multipart
+    private DispatcherServlet dispatcherServlet;
+    private MultipartResolver multipartResolver;
+
     //    ]]]]]]]]]]]]]]]]]
     @Override
     public String filterType() {
@@ -74,17 +87,48 @@ public class SimpleFilter extends ZuulFilter implements InitializingBean {
     public Object run() {
         RequestContext currentContext = RequestContext.getCurrentContext();
         HttpServletRequest request = currentContext.getRequest();
+        HttpServletResponse response = currentContext.getResponse();
+        try {
+            Object[] authValues = getMethodArgumentValues(request, response);
+            String sign = (String) authValues[0];
+            String uid = (String) authValues[1];
+            System.out.println("sign = " + sign);
+            System.out.println("uid = " + uid);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         logger.info(String.format("%s request to %s", request.getMethod(), request.getRequestURL().toString()));
         return null;
     }
 
-    //   [[[[[[[[[[[[[[[[[[[[[[
+    //   [[[[[[[[[[[[[[[[[[[[[[  read auth param
     public void authParam(String sign, String uid) {
     }
 
     private Object[] getMethodArgumentValues(HttpServletRequest request, HttpServletResponse response,
                                              Object... providedArgs) throws Exception {
-        ServletWebRequest webRequest = new ServletWebRequest(request, response);
+//============== multipart
+        HttpServletRequest processedRequest = request;
+//        HandlerExecutionChain mappedHandler = null;
+        boolean multipartRequestParsed = false;
+        //todo read multipart , still not gained
+
+        processedRequest = checkMultipart(request);
+        multipartRequestParsed = (processedRequest != request);
+
+      /*  // Determine handler for the current request.
+        mappedHandler = getHandler(processedRequest);
+*/
+//========== common code
+        ServletWebRequest webRequest ;
+        if (multipartRequestParsed) {
+            webRequest = new ServletWebRequest(processedRequest, response);
+        }else {
+            webRequest = new ServletWebRequest(request, response);
+        }
+//  ========== urlencoded
         ModelAndViewContainer mavContainer = new ModelAndViewContainer();
         mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request));
 //        modelFactory.initModel(webRequest, mavContainer, invocableMethod);
@@ -114,6 +158,22 @@ public class SimpleFilter extends ZuulFilter implements InitializingBean {
         }
         return args;
     }
+/*
+    protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+        for (HandlerMapping hm : this.handlerMappings) {
+            if (logger.isTraceEnabled()) {
+                logger.trace(
+                        "Testing handler map [" + hm + "] in DispatcherServlet with name '" + getServletName() + "'");
+            }
+            HandlerExecutionChain handler = hm.getHandler(request);
+            if (handler != null) {
+                return handler;
+            }
+        }
+        return null;
+    }
+*/
+
 
     private String getArgumentResolutionErrorMessage(String message, int index) {
         MethodParameter param = getMethodParameters()[index];
@@ -152,6 +212,11 @@ public class SimpleFilter extends ZuulFilter implements InitializingBean {
 
     }
 
+    @Autowired
+    public void setDispatcherServlet(DispatcherServlet dispatcherServlet) {
+        this.dispatcherServlet = dispatcherServlet;
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
         Field field = ReflectionUtils.findField(RequestMappingHandlerAdapter.class, "argumentResolvers");
@@ -167,7 +232,30 @@ public class SimpleFilter extends ZuulFilter implements InitializingBean {
         } finally {
             field.setAccessible(accessible);
         }
+        multipartResolver = dispatcherServlet.getMultipartResolver();
 
     }
+
+//    ================ multipart ===========
+
+    protected HttpServletRequest checkMultipart(HttpServletRequest request) throws MultipartException {
+        if (this.multipartResolver != null && this.multipartResolver.isMultipart(request)) {
+            if (WebUtils.getNativeRequest(request, MultipartHttpServletRequest.class) != null) {
+                logger.debug("Request is already a MultipartHttpServletRequest - if not in a forward, " +
+                        "this typically results from an additional MultipartFilter in web.xml");
+            }
+            else if (request.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE) instanceof MultipartException) {
+                logger.debug("Multipart resolution failed for current request before - " +
+                        "skipping re-resolution for undisturbed error rendering");
+            }
+            else {
+                return this.multipartResolver.resolveMultipart(request);
+            }
+        }
+        // If not returned before: return original request.
+        return request;
+    }
+
+//    ]]]]]]]]]]]]]]]]]]]]]]]
 
 }

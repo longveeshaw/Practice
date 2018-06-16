@@ -17,7 +17,7 @@ public class PostController {
     public String multipart(String sign, String uid) {
         String echo = "sign = [" + sign + "], uid = [" + uid + "]";
         System.out.println(echo);
-        return "redirect: http://httbin.org/post";
+        return "redirect: http://httbin.org/post";//todo  没生效
     }
 
 
