@@ -1,0 +1,19 @@
+server:
+  port: 8091
+
+zuul:
+  routes:
+    book_route:
+      path: /book_xxx/yy/* # another access rule
+#      path: /**
+#      stripPrefix: true # 会把/**前面的都去掉
+      serviceId: books # provide an access rule: <serviceId>/**
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+spring:
+  application:
+    name: gateway

@@ -16,9 +16,7 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ReactiveHttpOutputMessage;
-import org.springframework.http.codec.EncoderHttpMessageWriter;
-import org.springframework.http.codec.HttpMessageReader;
-import org.springframework.http.codec.ResourceHttpMessageWriter;
+import org.springframework.http.codec.*;
 import org.springframework.http.codec.multipart.FormFieldPart;
 import org.springframework.http.codec.multipart.MultipartHttpMessageWriter;
 import org.springframework.http.codec.multipart.Part;
@@ -30,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.reactive.BindingContext;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.reactive.result.method.annotation.RequestPartMethodArgumentResolver;
@@ -37,6 +36,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ReplayProcessor;
+import reactor.core.publisher.WorkQueueProcessor;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -54,6 +54,10 @@ public class ReadBodyReactiveGatewayFilterFactory extends AbstractGatewayFilterF
     private ConfigurableApplicationContext applicationContext;
     private ReactiveAdapterRegistry reactiveAdapterRegistry;
     private List<HttpMessageReader<?>> messageReaders;
+
+    private List<HttpMessageWriter<?>> httpMessageWriters;
+    private MultipartHttpMessageWriter multipartHttpMessageWriter;
+
     /**
      * 内问有 getMessageReaders()
      */
@@ -79,7 +83,6 @@ Mono<Object> uidMono = requestPartMethodArgumentResolver.resolveArgument(uidPara
                     String uid = (String) o;
                     System.out.println("uid = " + uid);
                     if (StringUtils.isNotBlank(uid)) {
-
                         return chain.filter(exchange);
                     } else {
                         return Mono.empty();
@@ -87,61 +90,65 @@ Mono<Object> uidMono = requestPartMethodArgumentResolver.resolveArgument(uidPara
                 });*/
 
 
-                //=======================
+//=======================
                /* Flux<List<Part>> map = exchange.getMultipartData()
                         .map(Map::entrySet).flatMapMany(entry -> {
                             return Flux.fromIterable(entry);
                         }).map(Map.Entry::getValue);*/
-                // TODO: 2018/6/12
 
-                ServerHttpRequest request = exchange.getRequest();
-                /* Mono<MultiValueMap<String, Part>> multipartData = */
-                Mono<MultiValueMap<String, Part>> multipartData = exchange.getMultipartData();
 
-                MultipartHttpMessageWriter multipartHttpMessageWriter = new MultipartHttpMessageWriter(Arrays.asList(
+               /* MultipartHttpMessageWriter multipartHttpMessageWriter = new MultipartHttpMessageWriter(Arrays.asList(
                         new EncoderHttpMessageWriter<>(CharSequenceEncoder.textPlainOnly()),
                         new ResourceHttpMessageWriter()
-                ));// exception: "No suitable writer found for part: uid"
+                ));*/
+                // TODO: 2018/6/12 exception: "No suitable writer found for part: uid"
 
 
                 HttpMessageWriterResponse message = new HttpMessageWriterResponse(exchange.getResponse().bufferFactory());
-                Mono write = multipartHttpMessageWriter.write(multipartData, ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, Part.class), MediaType.MULTIPART_FORM_DATA,
+                Mono write = multipartHttpMessageWriter.write(exchange.getMultipartData(), ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, Part.class), MediaType.MULTIPART_FORM_DATA,
                         message, Collections.emptyMap());
 
-                return multipartData.flatMap(map -> Mono.just(map.get("sign")))
+
+                ServerHttpRequestDecorator decorator = new ServerHttpRequestDecorator(
+                        exchange.getRequest()) {
+
+                    @Override
+                    public HttpHeaders getHeaders() {
+                        HttpHeaders httpHeaders = new HttpHeaders();
+                        httpHeaders.putAll(super.getHeaders());
+                        httpHeaders.set(HttpHeaders.TRANSFER_ENCODING, "chunked");
+                        return httpHeaders;
+                    }
+
+                    @Override
+                    public Flux<DataBuffer> getBody() {
+                      /*  WorkQueueProcessor workQueueProcessor = WorkQueueProcessor.builder().share(true).build();
+                        exchange.getRequest().getBody().subscribe(workQueueProcessor);
+                        return workQueueProcessor;
+*/
+//                        ===============
+                       /* ReplayProcessor<DataBuffer> replayProcessor = ReplayProcessor.create();
+                        exchange.getRequest().getBody().subscribeWith(replayProcessor);
+                        //  "Only one connection receive subscriber allowed."
+                        return replayProcessor;*/
+//                                        return Flux.from(request.getBody());
+//                                        return request.getBody();
+                        return Flux.from(write.defaultIfEmpty("")).flatMap(o -> message.getBody());
+//
+                    }
+                };
+
+                return exchange.getMultipartData().flatMap(map -> Mono.just(map.get("sign")))
                         .flatMap(parts -> Mono.just(parts.get(0))).flatMap(part -> {
                             FormFieldPart formFieldPart = (FormFieldPart) part;
                             String sign = formFieldPart.value();
                             if (StringUtils.isBlank(sign)) {
                                 throw new RuntimeException("========== sign is blank! ==========");
                             } else {
-                                ServerHttpRequestDecorator decorator = new ServerHttpRequestDecorator(
-                                        exchange.getRequest()) {
-                                    @Override
-                                    public HttpHeaders getHeaders() {
-                                        HttpHeaders httpHeaders = new HttpHeaders();
-                                        httpHeaders.putAll(super.getHeaders());
-                                        httpHeaders.set(HttpHeaders.TRANSFER_ENCODING, "chunked");
-                                        return httpHeaders;
-                                    }
-
-                                    @Override
-                                    public Flux<DataBuffer> getBody() {
-                                        ReplayProcessor<Object> replayProcessor = ReplayProcessor.create();
-                                        replayProcessor.join()
-                                        // TODO: 2018/6/12  "Only one connection receive subscriber allowed."
-                                        return Flux.from(request.getBody());
-//                                        return request.getBody();
-//                                        return Flux.from(write.defaultIfEmpty("")).flatMap(o -> message.getBody());
-//
-                                    }
-                                };
-
                                 return chain.filter(exchange.mutate().request(decorator).build());
 //                                return chain.filter(exchange);
                             }
                         }).doOnError(Throwable::printStackTrace);
-
 
 //                ==================
 
@@ -171,6 +178,13 @@ Mono<Object> uidMono = requestPartMethodArgumentResolver.resolveArgument(uidPara
         messageReaders = requestMappingHandlerAdapter.getMessageReaders();
         reactiveAdapterRegistry = requestMappingHandlerAdapter.getReactiveAdapterRegistry();
         requestPartMethodArgumentResolver = new RequestPartMethodArgumentResolver(messageReaders, reactiveAdapterRegistry);
+
+
+        ExchangeStrategies exchangeStrategies = ExchangeStrategies.withDefaults();
+
+        httpMessageWriters = exchangeStrategies.messageWriters();
+        multipartHttpMessageWriter = new MultipartHttpMessageWriter(httpMessageWriters, new FormHttpMessageWriter());
+
     }
 
     @Override
