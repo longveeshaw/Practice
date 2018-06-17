@@ -132,7 +132,7 @@ public class SimpleFilter extends ZuulFilter implements InitializingBean {
                 } else if (MediaType.APPLICATION_JSON_VALUE.equals(contentType)) {
 //                    Object[] authValues = getMethodArgumentValues(request, response);
 
-                    byte[] contentData = ((HttpServletRequestWrapper) request).getContentData();
+                    byte[] contentData = requestWrapper.getContentData();
                     JSONObject jsonObject = JSONObject.parseObject(new String(contentData));
                     sign = (String) jsonObject.get("sign");
                     uid = (String) jsonObject.get("uid");
