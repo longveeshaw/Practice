@@ -1,8 +1,12 @@
 package com.practice.zuul1.gateway.filters.pre;
 
+import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-import com.practice.zuul1.gateway.controller.PostController;
+import com.netflix.zuul.http.HttpServletRequestWrapper;
+import org.apache.catalina.connector.RequestFacade;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -11,31 +15,24 @@ import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ParameterNameDiscoverer;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.support.ConfigurableWebBindingInitializer;
-import org.springframework.web.bind.support.DefaultDataBinderFactory;
 import org.springframework.web.bind.support.WebDataBinderFactory;
-import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.method.support.HandlerMethodArgumentResolverComposite;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import org.springframework.web.multipart.MultipartException;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.support.AbstractMultipartHttpServletRequest;
 import org.springframework.web.servlet.DispatcherServlet;
-import org.springframework.web.servlet.HandlerExecutionChain;
-import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.ServletRequestDataBinderFactory;
 import org.springframework.web.servlet.support.RequestContextUtils;
-import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Collections;
 
 /**
@@ -48,7 +45,7 @@ import java.util.Collections;
 public class SimpleFilter extends ZuulFilter implements InitializingBean {
 
     protected final Log logger = LogFactory.getLog(getClass());
-    //[[[[[[[[[[[[[[[[[[
+    //[[[[[[[[[[[[[[[[[[  read request body
     private WebDataBinderFactory dataBinderFactory;
 
     private RequestMappingHandlerAdapter requestMappingHandlerAdapter;
@@ -63,9 +60,9 @@ public class SimpleFilter extends ZuulFilter implements InitializingBean {
      */
     public static final String METHOD_AUTH_PARAM = "authParam";
 
-//============= multipart
+    //============= multipart
     private DispatcherServlet dispatcherServlet;
-    private MultipartResolver multipartResolver;
+//    private MultipartResolver multipartResolver;
 
     //    ]]]]]]]]]]]]]]]]]
     @Override
@@ -88,10 +85,64 @@ public class SimpleFilter extends ZuulFilter implements InitializingBean {
         RequestContext currentContext = RequestContext.getCurrentContext();
         HttpServletRequest request = currentContext.getRequest();
         HttpServletResponse response = currentContext.getResponse();
+
+        String contentType = request.getContentType();
+        if (contentType == null) {
+            contentType = "";
+        }
+        int semicolon = contentType.indexOf(';');
+        if (semicolon >= 0) {
+            contentType = contentType.substring(0, semicolon).trim();
+        } else {
+            contentType = contentType.trim();
+        }
+        contentType = contentType.toLowerCase();
+
+
         try {
+
+           /*
             Object[] authValues = getMethodArgumentValues(request, response);
             String sign = (String) authValues[0];
             String uid = (String) authValues[1];
+            System.out.println("sign = " + sign);
+            System.out.println("uid = " + uid);
+            */
+
+            String sign = "";
+            String uid = "";
+
+
+//[[[[[[[[[[[[[[[[[[[[
+            String method = request.getMethod();
+            if ("POST".equals(method.toUpperCase())) {
+                RequestFacade requestFacade = null;
+                HttpServletRequestWrapper requestWrapper = (HttpServletRequestWrapper) request;
+                HttpServletRequest wrappedRequest = requestWrapper.getRequest();
+                if (MediaType.MULTIPART_FORM_DATA_VALUE.equals(contentType)) {
+//                StandardMultipartHttpServletRequest multipartHttpServletRequest = (StandardMultipartHttpServletRequest) wrappedRequest;
+                    AbstractMultipartHttpServletRequest multipartHttpServletRequest = (AbstractMultipartHttpServletRequest) wrappedRequest;
+                    requestFacade = (RequestFacade) multipartHttpServletRequest.getRequest();
+                    sign = requestFacade.getParameter("sign");
+                    uid = requestFacade.getParameter("uid");
+                } else if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(contentType)) {
+                    requestFacade = (RequestFacade) wrappedRequest;
+                    sign = requestFacade.getParameter("sign");
+                    uid = requestFacade.getParameter("uid");
+                } else if (MediaType.APPLICATION_JSON_VALUE.equals(contentType)) {
+//                    Object[] authValues = getMethodArgumentValues(request, response);
+
+                    byte[] contentData = ((HttpServletRequestWrapper) request).getContentData();
+                    JSONObject jsonObject = JSONObject.parseObject(new String(contentData));
+                    sign = (String) jsonObject.get("sign");
+                    uid = (String) jsonObject.get("uid");
+                }
+
+
+            }
+
+//            ]]]]]]]]]]]]]]]]]]]]
+
             System.out.println("sign = " + sign);
             System.out.println("uid = " + uid);
 
@@ -109,25 +160,10 @@ public class SimpleFilter extends ZuulFilter implements InitializingBean {
 
     private Object[] getMethodArgumentValues(HttpServletRequest request, HttpServletResponse response,
                                              Object... providedArgs) throws Exception {
-//============== multipart
-        HttpServletRequest processedRequest = request;
-//        HandlerExecutionChain mappedHandler = null;
-        boolean multipartRequestParsed = false;
-        //todo read multipart , still not gained
 
-        processedRequest = checkMultipart(request);
-        multipartRequestParsed = (processedRequest != request);
+        ServletWebRequest webRequest;
+        webRequest = new ServletWebRequest(request, response);
 
-      /*  // Determine handler for the current request.
-        mappedHandler = getHandler(processedRequest);
-*/
-//========== common code
-        ServletWebRequest webRequest ;
-        if (multipartRequestParsed) {
-            webRequest = new ServletWebRequest(processedRequest, response);
-        }else {
-            webRequest = new ServletWebRequest(request, response);
-        }
 //  ========== urlencoded
         ModelAndViewContainer mavContainer = new ModelAndViewContainer();
         mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request));
@@ -232,15 +268,15 @@ public class SimpleFilter extends ZuulFilter implements InitializingBean {
         } finally {
             field.setAccessible(accessible);
         }
-        multipartResolver = dispatcherServlet.getMultipartResolver();
+//        multipartResolver = dispatcherServlet.getMultipartResolver();
 
     }
 
 //    ================ multipart ===========
 
-    protected HttpServletRequest checkMultipart(HttpServletRequest request) throws MultipartException {
+/*    protected HttpServletRequest checkMultipart(HttpServletRequest request) throws MultipartException {
         if (this.multipartResolver != null && this.multipartResolver.isMultipart(request)) {
-            if (WebUtils.getNativeRequest(request, MultipartHttpServletRequest.class) != null) {
+           *//* if (WebUtils.getNativeRequest(request, MultipartHttpServletRequest.class) != null) {
                 logger.debug("Request is already a MultipartHttpServletRequest - if not in a forward, " +
                         "this typically results from an additional MultipartFilter in web.xml");
             }
@@ -250,11 +286,13 @@ public class SimpleFilter extends ZuulFilter implements InitializingBean {
             }
             else {
                 return this.multipartResolver.resolveMultipart(request);
-            }
+            }*//*
+            return this.multipartResolver.resolveMultipart(request);
+
         }
         // If not returned before: return original request.
         return request;
-    }
+    }*/
 
 //    ]]]]]]]]]]]]]]]]]]]]]]]
 
